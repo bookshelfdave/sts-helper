@@ -47,13 +47,29 @@ func readProfile(profileName string, path string) (*sts.AssumeRoleInput, error) 
 	return nil, errors.New("profile not found")
 }
 
+func listProfiles(path string) error {
+	yamlFile, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	profiles := make(map[string]*profile)
+	err = yaml.Unmarshal(yamlFile, &profiles)
+	if err != nil {
+		return err
+	}
+	for name, v := range profiles {
+		fmt.Printf("%s: %s\n", name, v.RoleArn)
+	}
+	return nil
+}
+
 func getInput(c *cli.Context) (*sts.AssumeRoleInput, error) {
 
 	var assumeRoleInput *sts.AssumeRoleInput
 	var err error
 	if c.String("helper-profile") != "" {
 		// read from profile
-		assumeRoleInput, err = readProfile(c.String("helper-profile"), c.String("helper-profile-path"))
+		assumeRoleInput, err = readProfile(c.String("helper-profile"), c.GlobalString("helper-profile-path"))
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +97,7 @@ func getInput(c *cli.Context) (*sts.AssumeRoleInput, error) {
 
 func doit(input *sts.AssumeRoleInput) (*sts.AssumeRoleOutput, error) {
 	svc := sts.New(session.New())
-
+	fmt.Printf("%v+\n", *input)
 	result, err := svc.AssumeRole(input)
 	if err != nil {
 		return nil, err
@@ -113,56 +129,73 @@ func main() {
 	app.HelpName = "sts-helper"
 	app.Usage = "Assume an AWS role and display shell code to eval"
 	app.Version = "0.1.0"
+	app.Commands = []cli.Command{
+		{
+			Name:    "assume-role",
+			Aliases: []string{"a"},
+			Usage:   "Assume an IAM role",
+			Action: func(c *cli.Context) error {
+				input, err := getInput(c)
+				if err != nil {
+					panic(err)
+				}
+				result, err := doit(input)
+				if err != nil {
+					panic(err)
+				}
+				showIt(c.BoolT("clear-env"), result)
+				return nil
+			},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:   "role, r",
+					Usage:  "Role to assume",
+					EnvVar: "STS_ROLE_ARN_TO_ASSUME",
+				},
+				cli.StringFlag{
+					Name:   "mfa, m",
+					Usage:  "MFA arn",
+					EnvVar: "STS_MFA_ARN",
+				},
+				cli.StringFlag{
+					Name:  "token, t",
+					Usage: "MFA token value",
+				},
+				cli.StringFlag{
+					Name:  "session-name, n",
+					Usage: "STS session name",
+				},
+				cli.Int64Flag{
+					Name:  "duration, d",
+					Usage: "Duration in seconds",
+					Value: 3600,
+				},
+				cli.StringFlag{
+					Name:  "helper-profile, p",
+					Usage: "sts-helper profile",
+				},
+				cli.BoolTFlag{
+					Name:  "clear-env, c",
+					Usage: "Clear current aws profile values",
+				},
+			},
+		},
+		{
+			Name:    "list-helper-profiles",
+			Aliases: []string{"l"},
+			Usage:   "Show configured sts-helper profiles",
+			Action: func(c *cli.Context) error {
+				listProfiles(c.GlobalString("helper-profile-path"))
+				return nil
+			},
+		},
+	}
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "role, r",
-			Usage:  "Role to assume",
-			EnvVar: "STS_ROLE_ARN_TO_ASSUME",
-		},
-		cli.StringFlag{
-			Name:   "mfa, m",
-			Usage:  "MFA arn",
-			EnvVar: "STS_MFA_ARN",
-		},
-		cli.StringFlag{
-			Name:  "token, t",
-			Usage: "MFA token value",
-		},
-		cli.StringFlag{
-			Name:  "session-name, n",
-			Usage: "STS session name",
-		},
-		cli.Int64Flag{
-			Name:  "duration, d",
-			Usage: "Duration in seconds",
-			Value: 3600,
-		},
-		cli.StringFlag{
-			Name:  "helper-profile, p",
-			Usage: "sts-helper profile",
-		},
 		cli.StringFlag{
 			Name:  "helper-profile-path",
 			Usage: "Path to sts-helper config file",
 			Value: path.Join(os.Getenv("HOME"), ".sts-helper.yaml"),
 		},
-
-		cli.BoolTFlag{
-			Name:  "clear-env, c",
-			Usage: "Clear current aws profile values",
-		},
-	}
-	app.Action = func(c *cli.Context) error {
-		input, err := getInput(c)
-		if err != nil {
-			panic(err)
-		}
-		result, err := doit(input)
-		if err != nil {
-			panic(err)
-		}
-		showIt(c.BoolT("clear-env"), result)
-		return nil
 	}
 	err := app.Run(os.Args)
 	if err != nil {
