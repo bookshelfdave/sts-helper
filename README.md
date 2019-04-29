@@ -1,8 +1,12 @@
 # sts-helper
 
-`sts-helper` is a CLI tool used to easily use AWS STS from bash. 
+`sts-helper` is a CLI tool used to make assuming AWS roles more convenient.
 
-## Install
+## Prebuilt binaries
+
+Only Darwin and Linux 64 bit binaries are available on the [releases](https://github.com/metadave/sts-helper/releases) page.
+
+## Build and install from source
 
 ```
 go get github.com/metadave/sts-helper

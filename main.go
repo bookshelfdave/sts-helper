@@ -127,7 +127,7 @@ func main() {
 	app.Name = "sts-helper"
 	app.HelpName = "sts-helper"
 	app.Usage = "Assume an AWS role and display shell code to eval"
-	app.Version = "0.1.0"
+	app.Version = "0.1.3"
 	app.Commands = []cli.Command{
 		{
 			Name:    "assume-role",
@@ -175,7 +175,7 @@ func main() {
 				},
 				cli.BoolTFlag{
 					Name:  "clear-env, c",
-					Usage: "Clear current aws profile values",
+					Usage: "Clear current AWS environment variables",
 				},
 			},
 		},
