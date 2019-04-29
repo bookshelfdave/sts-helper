@@ -2,7 +2,7 @@
 
 `sts-helper` is a CLI tool used to easily use AWS STS from bash. 
 
-### Install
+## Install
 
 ```
 go get github.com/metadave/sts-helper
@@ -61,7 +61,7 @@ function sts_assume_with_list() {
 ```
 
 
-### Example
+## Example
 
 ```
 source ~/.bashrc
@@ -81,4 +81,10 @@ AWS_ACCESS_KEY_ID=...
 ```
 
 > By default, `AWS_PROFILE` will be unset as part of the output from `sts-helper`
+
+---
+
+# License
+
+[Apache Software License 2.0](https://github.com/metadave/ksv/blob/master/LICENSE)
 
