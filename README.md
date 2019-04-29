@@ -1,18 +1,13 @@
 # sts-helper
 
-
-```
-function aws_sudo() {
-     read -p "Helper profile:" prof
-     read -p "MFA token: " token
-     eval $(go run main.go --helper-profile $prof --token $token)
-}
-```
+`sts-helper` is a CLI tool used to easily use AWS STS from bash. 
 
 
-## Config file
 
-~/.sts-helper.yaml
+
+## Setup 
+
+### Create a `~/.sts-helper.yaml` file:
 
 ```
 ---
@@ -30,3 +25,22 @@ rds-readonly:
   clear-env: true
 
 ```
+
+### Paste this function into your .bashrc
+
+```
+function sts_assume() {
+     echo "Available sts-help profiles:"
+     sts-helper list-helper-profiles
+     read -p "Helper profile: " prof
+     read -p "MFA token: " token
+
+     eval $(sts-helper assume-role --helper-profile $prof --token $token)
+}
+```
+
+```
+source ~/.bashrc
+sts_assume
+```
+

@@ -97,7 +97,6 @@ func getInput(c *cli.Context) (*sts.AssumeRoleInput, error) {
 
 func doit(input *sts.AssumeRoleInput) (*sts.AssumeRoleOutput, error) {
 	svc := sts.New(session.New())
-	fmt.Printf("%v+\n", *input)
 	result, err := svc.AssumeRole(input)
 	if err != nil {
 		return nil, err
