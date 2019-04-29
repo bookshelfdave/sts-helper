@@ -19,11 +19,11 @@ import (
 )
 
 type profile struct {
-	Duration    int64  `yaml:"duration"`
-	RoleArn     string `yaml:"role-arn"`
-	MFAArn      string `yaml:"mfa-arn"`
-	SessionName string `yaml:"session-name"`
-	ClearEnv    bool   `yaml:"clear-env"`
+	DurationSeconds int64  `yaml:"duration-seconds"`
+	RoleArn         string `yaml:"role-arn"`
+	MFAArn          string `yaml:"mfa-arn"`
+	SessionName     string `yaml:"session-name"`
+	ClearEnv        bool   `yaml:"clear-env"`
 }
 
 func readProfile(profileName string, path string) (*sts.AssumeRoleInput, error) {
@@ -38,7 +38,7 @@ func readProfile(profileName string, path string) (*sts.AssumeRoleInput, error) 
 	}
 	if p, ok := profiles[profileName]; ok {
 		return &sts.AssumeRoleInput{
-			DurationSeconds: &p.Duration,
+			DurationSeconds: &p.DurationSeconds,
 			RoleArn:         &p.RoleArn,
 			RoleSessionName: &p.SessionName,
 			SerialNumber:    &p.MFAArn,
@@ -58,7 +58,7 @@ func listProfiles(path string) error {
 		return err
 	}
 	for name, v := range profiles {
-		fmt.Printf("%s: %s\n", name, v.RoleArn)
+		fmt.Printf("%s %s\n", name, v.RoleArn)
 	}
 	return nil
 }
@@ -86,7 +86,7 @@ func getInput(c *cli.Context) (*sts.AssumeRoleInput, error) {
 	if c.String("token") != "" {
 		mfaTokenValue = c.String("token")
 	} else {
-		fmt.Printf("MFA token:")
+		fmt.Printf("# MFA token:")
 		reader := bufio.NewReader(os.Stdin)
 		mfaTokenValue, _ = reader.ReadString('\n')
 	}
