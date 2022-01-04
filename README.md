@@ -8,7 +8,7 @@ Only Darwin and Linux 64 bit binaries are available on the [releases](https://gi
 
 ## Build and install from source
 
-```
+```bash
 go get github.com/metadave/sts-helper
 cd ${GOPATH}/src/github.com/metadave/sts-helper
 dep ensure
@@ -19,7 +19,7 @@ go install
 
 ### Create an `~/.sts-helper.yaml` file:
 
-```
+```yaml
 ---
 s3-stuff:
   duration-seconds: 3600
@@ -38,7 +38,7 @@ rds-readonly:
 
 ### Paste this function into your .bashrc
 
-```
+```bash
 function sts_assume() {
      read -p "Helper profile: " prof
      read -p "MFA token: " token
@@ -48,13 +48,13 @@ function sts_assume() {
 
 or just use a snippet like:
 
-```
+```bash
 eval $(sts-helper assume-role --helper-profile my_profile --token 123456)
 ```
 
 If you want to see a list of sts-helper profiles, use a function like this:
 
-```
+```bash
 function sts_assume_with_list() {
      echo "Available sts-help profiles:"
      sts-helper list-helper-profiles
@@ -67,7 +67,7 @@ function sts_assume_with_list() {
 
 ## Example
 
-```
+```bash
 source ~/.bashrc
 export AWS_PROFILE=some_profile
 
